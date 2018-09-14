@@ -1,0 +1,14 @@
+test310819_allpos/
+test_200718_allpos/
+test_210718_allpos/
+test_270718_allpos/
+test_1907_allpos/
+test_1906_art/
+test_310718_alpos/
+logs/
+dataset_final_200618/
+dataset_210618_train_feedback/
+dataset_210618_train/
+dataset_210618_test/
+test_br/
+*.npz

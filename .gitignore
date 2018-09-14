@@ -10,5 +10,6 @@ dataset_final_200618/
 dataset_210618_train_feedback/
 dataset_210618_train/
 dataset_210618_test/
+test310718_allpos/
 test_br/
 *.npz

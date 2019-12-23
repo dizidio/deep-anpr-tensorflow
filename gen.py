@@ -160,30 +160,53 @@ def rounded_rect(shape, radius):
 def generate_plate(font_height, char_ims):
     h_padding = random.uniform(0.2, 0.4) * font_height
     v_padding = random.uniform(0.1, 0.3) * font_height
-    spacing = font_height * random.uniform(-0.05, 0.05)
+    h_spacing = font_height * random.uniform(-0.05, 0.05)
+    v_spacing = font_height * random.uniform(0.05, 0.1)
     radius = 1 + int(font_height * 0.1 * random.random())
 
     code = generate_code()
-    text_width = sum(char_ims[c].shape[1] for c in code)
-    text_width += (len(code) - 1) * spacing
 
-    out_shape = (int(font_height + v_padding * 2),
-                 int(text_width + h_padding * 2))
+    upper_text_width = sum(char_ims[c].shape[1] for c in code[:3])
+    upper_text_width += (len(code[:3]) - 1) * h_spacing
 
+    lower_text_width = sum(char_ims[c].shape[1] for c in code[3:])
+    lower_text_width += (len(code[3:]) - 1) * h_spacing
+
+    #print(upper_text_width)
+    #print(lower_text_width)
+
+
+    text_width = max(upper_text_width, lower_text_width) + h_padding * 2
+
+    #print(text_width)
+
+    text_height = font_height*2 + v_spacing + v_padding*2
+
+    out_shape = (int(text_height),
+                 int(text_width))
+                
     text_color, plate_color = pick_colors()
     
     text_mask = numpy.zeros(out_shape)
     
-    x = h_padding
+    x = h_padding + (lower_text_width - upper_text_width)/2 + random.uniform(0.05, 0.1) * font_height
+    #print(x)
+    #print(h_padding)
     y = v_padding 
-    for c in code:
+    for i,c in enumerate(code):
         char_im = char_ims[c]
-        ix, iy = int(x), int(y)
+        ix, iy = int(numpy.round(x)), int(numpy.round(y))
         text_mask[iy:iy + char_im.shape[0], ix:ix + char_im.shape[1]] = char_im
-        x += char_im.shape[1] + spacing
+        x += char_im.shape[1] + h_spacing
+        if i==2:
+            y += font_height + v_spacing
+            x = h_padding
 
     plate = (numpy.ones(out_shape) * plate_color * (1. - text_mask) +
              numpy.ones(out_shape) * text_color * text_mask)
+             
+    #im = Image.fromarray(numpy.uint8(plate*255))
+    #im.show()
 
     return plate, rounded_rect(out_shape, radius), code.replace(" ", "")
 
@@ -265,11 +288,11 @@ def generate_ims():
 
 
 if __name__ == "__main__":
-    os.mkdir("test310718_allpos")
+    os.mkdir("test_motos")
     im_gen = itertools.islice(generate_ims(), int(sys.argv[1]))
+    #im_gen = itertools.islice(generate_ims(), int(1))
     for img_idx, (im, c, p) in enumerate(im_gen):
-        fname = "test310718_allpos/{:08d}_{}_{}.png".format(img_idx, c,
+        fname = "test_motos/{:08d}_{}_{}.png".format(img_idx, c,
                                                "1" if p else "0")
         print(fname)
         cv2.imwrite(fname, im * 255.)
-
